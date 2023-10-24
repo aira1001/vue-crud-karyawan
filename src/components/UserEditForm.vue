@@ -49,7 +49,7 @@
                 <button v-on:click.prevent="// @ts-ignore
                     showModal = !showModal" class="btn btn-secondary mr-1">Cancel</button>
                 <button v-on:click="// @ts-ignore
-                    updateEmployee(employee.id)" type="submit" class="btn btn-primary">Edit</button>
+                    updateEmployee(employee.id)" type="button" class="btn btn-primary">Edit</button>
                 </form>
             </div>
         </div>
@@ -98,10 +98,10 @@ export default {
             axios.put(`http://127.0.0.1:8000/api/employee/${id}`, data, {
                 headers: { 'Content-type': 'application/json', 'Authorization': `Bearer ${token}` }
             })
-                .then((response) => response.data)
                 .then((data) => {
                     this.employees = data;
                     console.log('data Edited Successfully');
+                    window.location.reload()
                 })
                 .catch((err) => {
                     console.error(err);

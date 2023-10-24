@@ -1,6 +1,36 @@
 <template>
     <div class="container">
+
         <h3 class="mt-2 mb-3 float-left text-primary">Employee</h3>
+        <!-- <div > -->
+            <form @submit="fetchEmployees" class="d-flex flex-row pt-3 pb-3 pl-5">
+                <div class="form-group d-flex flex-row align-items-center">
+                <label for="status">Status</label>
+                <select id="statusOption" v-model="filter.selected" class="form-control ml-2">
+                    <option value=1>Aktif</option>
+                    <option value=false>Tidak Aktif</option>
+                </select>
+            </div>
+            <div class="form-group d-flex flex-row align-items-center ml-3 mr-3">
+                <label for="division">Division</label>
+                <select id="divisionOption" class="form-control ml-2">
+                    <option value=1>Keuangan</option>
+                    <option value=2>HRD</option>
+                    <option value=3>Pemasaran</option>
+                    <option value=4>Produksi </option>
+                    <option value=5>Divisi Umum</option>
+                    <option value=16>IT</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary ">filter</button>
+            </div>
+            </form>
+            
+        <!-- </div> -->
+
+
+
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -45,7 +75,7 @@ import { EventBus } from '../main.js';
 import axios from 'axios';
 
 const config = {
-    headers: { Authorization: `Bearer 1|gzQP78qhcaDung5LjaWACfDPcMVMREHCcwTCJtbTf799851e` }
+    headers: { Authorization: `Bearer 1|gzQP78qhcaDung5LjaWACfDPcMVMREHCcwTCJtbTf799851e` },
 };
 // @ts-ignore
 export default {
@@ -53,9 +83,13 @@ export default {
     data() {
         return {
             employees: [],
-            showModal: false
+            showModal: false,
+            filter: {
+                selected: 1
+            }
         }
     },
+
     async created() {
         await axios.get('http://127.0.0.1:8000/api/employee', config)
             .then((response) => {
@@ -64,6 +98,16 @@ export default {
             .catch((error) => {
                 console.log(error)
             })
+    },
+    computed: {
+        filteredEmployees() {
+            return this.employees.filter(employee => {
+                if (this.filter.selected) {
+                    return employee.status = this.filter.selected;
+                }
+                return true;
+            });
+        },
     },
     methods: {
 
@@ -74,8 +118,21 @@ export default {
                     console.error(err);
                 });
         },
+   
+        async fetchEmployees(event) {
+            event.preventDefault();
+            // Replace with your API endpoint and appropriate query parameters
+            const apiUrl = 'http://localhost:8000/api/employee';
+            const queryParams = {
+                status: this.filter.selected,
+            };
 
-
+            return await axios.get(apiUrl, {
+                params: queryParams,
+                headers: { Authorization: `Bearer 1|gzQP78qhcaDung5LjaWACfDPcMVMREHCcwTCJtbTf799851e` },
+            }).then((res) => this.employees = res.data).catch((err) => console.log(err));
+        },
+        
         emitShowModal(employee) {
             this.employee = employee;
             EventBus.$emit('click', this.showModal, this.employee);
